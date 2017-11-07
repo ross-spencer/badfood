@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	version = "v0.0.1-beta"
+	version = "v0.0.2-nukem"
 	vers    bool
 	fname   string
 	badfood bool
