@@ -3,12 +3,26 @@
 Created for Artefactual Systems Inc. Allows for the generation of files of different sizes for testing Virus scanners. 
 
 * v0.0.1-beta: Simple output, relies entirely on custom virus definition
+* v0.0.2-beta: Incorporates Nukem virus definition
+* v0.0.2-beta: Incorporates EICAR
 
 The tool will create a file of -size (n)MB. It will place a pattern that will match against a ClamAV definition part-way (half-way) through the file. So for example, in the description below, we will inject the following sequence:
 
       afbadf00d0
 
 And providing our custom definition is available to Clamscan and Clamdscan then we will find a match. This allows us to test Clam's ability to spot the virus across a wide range of files of varying size. 
+
+### ClamAV use
+
+You have to run a command extending the filesize and/or scansize if the file is bigger than 25MB
+
+     clamscan --max-scansize=32M --max-filesize=32M {filename}
+
+clamdscan you need to set the config elsewhere:
+
+     #/etc/clamav/clamd.conf settings...
+     MaxScanSize 200M
+     MaxFileSize 200M
 
 ### Acknowledgements
 
@@ -50,6 +64,10 @@ Relevant settings in Clamscan:
 
      /var/lib/clamav
 
+#### Decompiling the signature database to see byte sequences
+
+     sigtool --unpack=/var/lib/clamav/main.cvd
+
 ### Custom definitions and Clamdscan
 
 Clamdscan doesn't support clamscan -d mode:
@@ -77,12 +95,23 @@ If it all works, you'll see the following:
 
 ##### 👍
 
-## The Problem with Eicar
+## Eicar
 
-Any anti-virus product that supports the EICAR test file should detect it in any file providing that the file starts with the following 68 characters, and is exactly 68 bytes long:
+Any anti-virus product that supports the EICAR test file should detect it in any 
+file providing that the file starts with the following 68 characters, and is 
+exactly 68 bytes long:
 
      X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 
-The first 68 characters is the known string. It may be optionally appended by any combination of whitespace characters with the total file length not exceeding 128 characters. The only whitespace characters allowed are the space character, tab, LF, CR, CTRL-Z. To keep things simple the file uses only upper case letters, digits and punctuation marks, and does not include spaces. The only thing to watch out for when typing in the test file is that the third character is the capital letter "O", not the digit zero.
+The first 68 characters is the known string. It may be optionally appended by 
+any combination of whitespace characters with the total file length not 
+exceeding 128 characters. The only whitespace characters allowed are the space 
+character, tab, LF, CR, CTRL-Z. To keep things simple the file uses only upper 
+case letters, digits and punctuation marks, and does not include spaces. The 
+only thing to watch out for when typing in the test file is that the third 
+character is the capital letter "O", not the digit zero.
 
-The problem? (A problem?): *What if the malicious file that you've accidentally downloaded and started working with contains a virus elsewhere in the bytesteam? I.e. not within the first 68 bytes?* - A. Create your own definition, and test it elsewhere within the file. 
+EICAR will always be at the beginning of the file so in a lot of cases you're not
+double checking a virus scanner's ability to seek through the file and correctly
+identify a sequence there. 
+
