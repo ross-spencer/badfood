@@ -1,4 +1,4 @@
-# Filegen
+# badfood
 
 Created for Artefactual Systems Inc. Allows for the generation of files of different sizes for testing Virus scanners. 
 
